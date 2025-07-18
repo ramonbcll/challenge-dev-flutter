@@ -37,4 +37,22 @@ class Student {
       cpf: '',
     );
   }
+
+  Student copyWith({
+    String? id,
+    String? name,
+    String? birthDate,
+    String? cpf,
+    String? academic_record,
+    String? email,
+  }) {
+    return Student(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      birthDate: birthDate ?? this.birthDate,
+      cpf: cpf ?? this.cpf,
+      academic_record: academic_record ?? this.academic_record,
+      email: email ?? this.email,
+    );
+  }
 }
