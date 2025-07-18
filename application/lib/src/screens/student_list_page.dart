@@ -1,3 +1,5 @@
+import 'package:application/src/models/student.dart';
+import 'package:application/src/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:application/src/core/injector.dart';
 import 'package:application/src/provider/student_list_controller.dart';
@@ -132,9 +134,29 @@ class _StudentsListPageState extends State<StudentsListPage> {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // navigate to edit/regist page
-          // success message
+        onPressed: () async {
+          var response = await Navigator.pushNamed(
+            context,
+            '/register_page',
+            arguments: {
+              'student': Student.empty(),
+              'titleAction': 'Adicionar aluno',
+              'buttonAction': 'Adicionar',
+            },
+          );
+          
+          if (response is Map && response['success'] == true) {
+            final newStudent = response['student'] as Student;
+            controller.addStudent(newStudent);
+            showCustomDialog(
+              context: context,
+              title: 'Aviso',
+              description:
+                  'O aluno foi adicionado com sucesso!',
+              primaryButtonText: 'Ok',
+            );
+
+          }
         },
         icon: const Icon(Icons.add),
         label: const Text('Adicionar aluno'),
