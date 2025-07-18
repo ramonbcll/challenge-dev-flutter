@@ -18,4 +18,16 @@ class StudentRepositoryImp implements StudentRepository {
       return [];
     }
   }
+
+  @override
+  Future addStudent(Student student) async {
+    try {
+      final response = await client.post(
+        HttpClientRequest(url: '/student', body: student),
+      );
+      return response.data;
+    } catch (e) {
+      return [];
+    }
+  }
 }

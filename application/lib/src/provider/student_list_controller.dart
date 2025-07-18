@@ -28,4 +28,9 @@ class StudentListController extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
   }
+
+  void addStudent(Student student) {
+    _students.add(student);
+    notifyListeners();
+  }
 }
