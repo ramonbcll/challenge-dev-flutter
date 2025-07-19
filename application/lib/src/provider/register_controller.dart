@@ -12,4 +12,10 @@ class RegisterController extends ChangeNotifier {
     notifyListeners();
     return result;
   }
+
+  Future<Map<String, dynamic>> updateStudent(Student student) async {
+    final result = await _studentRepository.updateStudent(student);
+    notifyListeners();
+    return result;
+  }
 }

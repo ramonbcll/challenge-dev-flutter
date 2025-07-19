@@ -50,4 +50,21 @@ class StudentRepositoryImp implements StudentRepository {
       };
     }
   }
+
+  @override
+  Future<Map<String,dynamic>> updateStudent(Student student) async {
+    int numberId = int.parse(student.id!);
+    final studentData = student.toJson();
+    try {
+      final response = await client.put(
+        HttpClientRequest(url: '/student/$numberId', body: studentData),
+      );
+      return response.data;
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Erro ao atualizar estudante: $e',
+      };
+    }
+  }
 }

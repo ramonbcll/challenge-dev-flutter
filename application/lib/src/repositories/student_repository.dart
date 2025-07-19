@@ -7,5 +7,6 @@ abstract interface class StudentRepository {
   Future<Map<String,dynamic>> addStudent(Student student);
 
   Future<Map<String,dynamic>> deleteStudent(String id);
-}
 
+  Future<Map<String,dynamic>> updateStudent(Student student);
+}
