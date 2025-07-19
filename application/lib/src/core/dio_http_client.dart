@@ -55,6 +55,7 @@ class DioHttpClient implements HttpClientCommon {
     try {
       final response = await _dio.post(
         request.url,
+        data: request.body,
         options: Options(headers: request.headers),
         queryParameters: request.queryParameters,
       );
@@ -77,6 +78,7 @@ class DioHttpClient implements HttpClientCommon {
     try {
       final response = await _dio.put(
         request.url,
+        data: request.body,
         options: Options(headers: request.headers),
         queryParameters: request.queryParameters,
       );
