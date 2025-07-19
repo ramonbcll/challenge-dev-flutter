@@ -3,7 +3,7 @@
 class Student {
   final String name;
   final String email;
-  final String birthDate;
+  final String birthdate;
   final String cpf;
   final String academic_record;
   final String? id;
@@ -11,7 +11,7 @@ class Student {
   Student({
     required this.name,
     required this.email,
-    required this.birthDate,
+    required this.birthdate,
     required this.cpf,
     required this.academic_record,
     this.id,
@@ -21,7 +21,7 @@ class Student {
     return Student(
       name: json['name'] ?? '',
       email: json['email'] ?? '',
-      birthDate: json['birthDate'] ?? '',
+      birthdate: json['birthdate'] ?? '',
       cpf: json['cpf'] ?? '',
       academic_record: json['academic_record'] ?? '',
       id: json['id'],
@@ -32,7 +32,7 @@ class Student {
     return Student(
       name: '',
       email: '',
-      birthDate: '',
+      birthdate: '',
       academic_record: '',
       cpf: '',
     );
@@ -41,7 +41,7 @@ class Student {
   Student copyWith({
     String? id,
     String? name,
-    String? birthDate,
+    String? birthdate,
     String? cpf,
     String? academic_record,
     String? email,
@@ -49,10 +49,26 @@ class Student {
     return Student(
       id: id ?? this.id,
       name: name ?? this.name,
-      birthDate: birthDate ?? this.birthDate,
+      birthdate: birthdate ?? this.birthdate,
       cpf: cpf ?? this.cpf,
       academic_record: academic_record ?? this.academic_record,
       email: email ?? this.email,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = {
+      'name': name,
+      'email': email,
+      'birthdate': birthdate,
+      'academic_record': academic_record,
+      'cpf': cpf.replaceAll('.', '').replaceAll('-', ''),
+    };
+
+    if (id != null) {
+      data['id'] = id!;
+    }
+
+    return data;
   }
 }
