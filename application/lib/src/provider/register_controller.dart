@@ -7,15 +7,31 @@ class RegisterController extends ChangeNotifier {
 
   RegisterController(this._studentRepository);
 
-  Future<Map<String, dynamic>> addStudent(Student student) async {
-    final result = await _studentRepository.addStudent(student);
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  void _setLoading(bool value) {
+    _isLoading = value;
     notifyListeners();
-    return result;
+  }
+
+  Future<Map<String, dynamic>> addStudent(Student student) async {
+    try {
+      _setLoading(true);
+      final result = await _studentRepository.addStudent(student);
+      return result;
+    } finally {
+      _setLoading(false);
+    }
   }
 
   Future<Map<String, dynamic>> updateStudent(Student student) async {
-    final result = await _studentRepository.updateStudent(student);
-    notifyListeners();
-    return result;
+    try {
+      _setLoading(true);
+      final result = await _studentRepository.updateStudent(student);
+      return result;
+    } finally {
+      _setLoading(false);
+    }
   }
 }
