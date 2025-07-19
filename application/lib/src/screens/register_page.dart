@@ -218,7 +218,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           id: widget.student.id,
                           name: _nameController.text.trim(),
                           birthdate: _birthdateController.text.trim(),
-                          cpf: _cpfController.text.trim(),
+                          cpf: _cpfController.text.trim().replaceAll('.', '').replaceAll('-', ''),
                           academic_record: _raController.text.trim(),
                           email: _emailController.text.trim(),
                         );
@@ -234,6 +234,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Erro ao cadastrar aluno.'),
+                              backgroundColor: Colors.red,
                             ),
                           );
                         }
