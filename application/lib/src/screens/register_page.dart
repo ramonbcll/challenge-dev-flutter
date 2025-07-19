@@ -20,6 +20,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _raController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isReadOnly = false;
 
   late final RegisterController registerController;
 
@@ -29,6 +30,15 @@ class _RegisterPageState extends State<RegisterPage> {
   void initState() {
     super.initState();
     registerController = CustomInjector.instance.get<RegisterController>();
+
+    if (widget.student.name.isNotEmpty) {
+      _isReadOnly = true;
+      _nameController.text = widget.student.name;
+      _birthdateController.text = widget.student.birthdate;
+      _cpfController.text = cpfFormatter.maskText(widget.student.cpf);
+      _raController.text = widget.student.academic_record;
+      _emailController.text = widget.student.email;
+    }
   }
 
   @override
@@ -39,7 +49,9 @@ class _RegisterPageState extends State<RegisterPage> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Adicionar Aluno'),
+        title: Text(
+          widget.student.name.isNotEmpty ? 'Editar aluno' : 'Adicionar aluno',
+        ),
       ),
       body: SingleChildScrollView(
         child: Form(
@@ -123,6 +135,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _cpfController,
+                  readOnly: _isReadOnly,
+                  style: TextStyle(
+                    color: _isReadOnly ? Colors.grey.shade500 : Colors.black,
+                  ),
                   keyboardType: TextInputType.number,
                   inputFormatters: [cpfFormatter],
                   decoration: InputDecoration(
@@ -150,6 +166,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _raController,
+                  readOnly: _isReadOnly,
+                  style: TextStyle(
+                    color: _isReadOnly ? Colors.grey.shade500 : Colors.black,
+                  ),
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     contentPadding: const EdgeInsets.symmetric(
@@ -223,24 +243,48 @@ class _RegisterPageState extends State<RegisterPage> {
                           email: _emailController.text.trim(),
                         );
 
-                        final result = await registerController.addStudent(
-                          student,
-                        );
-
-                        if (result['id'] != null) {
-                          final studentWithId = student.copyWith(id: result['id']);
-                          Navigator.of(context).pop({"success": true, "student": studentWithId});
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Erro ao cadastrar aluno.'),
-                              backgroundColor: Colors.red,
-                            ),
+                        if (student.id == null) {
+                          final result = await registerController.addStudent(
+                            student,
                           );
+
+                          if (!mounted) return;
+
+                          if (result['id'] != null) {
+                            final studentWithId = student.copyWith(id: result['id']);
+                            Navigator.of(context).pop({"success": true, "student": studentWithId});
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Erro ao cadastrar aluno.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
+                        else {
+                          final result = await registerController.updateStudent(
+                            student,
+                          );
+
+                          if (!mounted) return;
+
+                          if (result['id'] != null) {
+                            Navigator.of(context).pop({"success": true, "student": student});
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Erro ao atualizar aluno.'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
                         }
                       }
                     },
-                    child: Text('Cadastrar'),
+                    child: Text(
+                      widget.student.name.isNotEmpty ? 'Salvar edições' : 'Adicionar',
+                    ),
                   ),
                 ),
               ],
