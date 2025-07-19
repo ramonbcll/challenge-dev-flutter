@@ -20,14 +20,18 @@ class StudentRepositoryImp implements StudentRepository {
   }
 
   @override
-  Future addStudent(Student student) async {
+  Future<Map<String,dynamic>> addStudent(Student student) async {
+    final studentData = student.toJson();
     try {
       final response = await client.post(
-        HttpClientRequest(url: '/student', body: student),
+        HttpClientRequest(url: '/student', body: studentData),
       );
       return response.data;
     } catch (e) {
-      return [];
+      return {
+        'success': false,
+        'message': 'Erro ao adicionar estudante: $e',
+      };
     }
   }
 }
