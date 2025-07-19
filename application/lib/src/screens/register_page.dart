@@ -15,7 +15,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _birthDateController = TextEditingController();
+  final TextEditingController _birthdateController = TextEditingController();
   final TextEditingController _cpfController = TextEditingController();
   final TextEditingController _raController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -89,7 +89,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 16),
                 TextField(
-                  controller: _birthDateController,
+                  controller: _birthdateController,
                   keyboardType: TextInputType.datetime,
                   inputFormatters: [dateFormatter],
                   decoration: InputDecoration(
@@ -109,7 +109,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           lastDate: DateTime.now(),
                         ).then((selectedDate) {
                           if (selectedDate != null) {
-                            _birthDateController.text =
+                            _birthdateController.text =
                                 '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}';
                           }
                         });
@@ -217,7 +217,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         final student = Student(
                           id: widget.student.id,
                           name: _nameController.text.trim(),
-                          birthDate: _birthDateController.text.trim(),
+                          birthdate: _birthdateController.text.trim(),
                           cpf: _cpfController.text.trim(),
                           academic_record: _raController.text.trim(),
                           email: _emailController.text.trim(),
@@ -226,7 +226,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         final result = await registerController.addStudent(
                           student,
                         );
-                        
+
                         if (result['id'] != null) {
                           final studentWithId = student.copyWith(id: result['id']);
                           Navigator.of(context).pop({"success": true, "student": studentWithId});
