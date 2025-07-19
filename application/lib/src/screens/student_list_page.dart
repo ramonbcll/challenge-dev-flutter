@@ -3,6 +3,7 @@ import 'package:application/src/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:application/src/core/injector.dart';
 import 'package:application/src/provider/student_list_controller.dart';
+import 'package:application/src/widgets/student_card.dart';
 
 class StudentsListPage extends StatefulWidget {
   const StudentsListPage({super.key});
@@ -48,91 +49,72 @@ class _StudentsListPageState extends State<StudentsListPage> {
                 const SizedBox(height: 16),
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.only(bottom: 50),
+                    padding: const EdgeInsets.only(bottom: 80),
                     itemCount: controller.students.length,
                     itemBuilder: (context, index) {
                       final student = controller.students[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 6),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 14, right: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      student.name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text('RA: ${student.academic_record}'),
-                                    Text('CPF: ${student.cpf}'),
-                                  ],
-                                ),
+                      return StudentCard(
+                        student: student,
+                        onEdit: () async {
+                          var response = await Navigator.pushNamed(
+                            context,
+                            '/register_page',
+                            arguments: {
+                              'student': student,
+                              'titleAction': 'Editar aluno',
+                              'buttonAction': 'Salvar',
+                            },
+                          );
+                          if (response is Map && response['success'] == true) {
+                            final updatedStudent = response['student'] as Student;
+                            controller.updateStudent(updatedStudent);
+                            if (!mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Aluno atualizado com sucesso!'),
+                                backgroundColor: Colors.green,
                               ),
-                              Column(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit),
-                                    onPressed: () {
-                                      // navigate to edit/regist page
-                                    },
+                            );
+                          }
+                        },
+                        onDelete: () {
+                          showDialog<void>(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Excluir aluno'),
+                                content: const Text(
+                                  'Tem certeza que deseja excluir este aluno?'
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete),
+                                actions: [
+                                  TextButton(
                                     onPressed: () {
-                                      showDialog<void>(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: Text('Excluir aluno'),
-                                            content: Text(
-                                              'Tem certeza que deseja excluir este aluno?',
-                                            ),
-                                            actions: <Widget>[
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('Cancelar'),
-                                              ),
-                                              TextButton(
-                                                onPressed: () async {
-                                                  final result = await controller.deleteStudent(index);
-                                                  if (result['id'] != null) {
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      const SnackBar(
-                                                        content: Text('Aluno excluído com sucesso!'),
-                                                        backgroundColor: Colors.green,
-                                                      ),
-                                                    );
-                                                  }
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: Text('Excluir'),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
+                                      Navigator.of(context).pop();
                                     },
+                                    child: const Text('Cancelar'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      final result = await controller.deleteStudent(index);
+                                      if (!mounted) return;
+                                      if (result['id'] != null) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(
+                                            content: Text('Aluno excluído com sucesso!'),
+                                            backgroundColor: Colors.green,
+                                          ),
+                                        );
+                                      }
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Excluir'),
                                   ),
                                 ],
-                              ),
-                            ],
-                          ),
-                        ),
+                              );
+                            },
+                          );
+                        },
                       );
                     },
                   ),
@@ -153,10 +135,10 @@ class _StudentsListPageState extends State<StudentsListPage> {
               'buttonAction': 'Adicionar',
             },
           );
-          
           if (response is Map && response['success'] == true) {
             final newStudent = response['student'] as Student;
             controller.addStudent(newStudent);
+            if (!mounted) return;
             showCustomDialog(
               context: context,
               title: 'Aviso',
@@ -164,7 +146,6 @@ class _StudentsListPageState extends State<StudentsListPage> {
                   'O aluno foi adicionado com sucesso!',
               primaryButtonText: 'Ok',
             );
-
           }
         },
         icon: const Icon(Icons.add),
