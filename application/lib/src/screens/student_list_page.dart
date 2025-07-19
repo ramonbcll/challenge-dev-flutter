@@ -26,125 +26,183 @@ class _StudentsListPageState extends State<StudentsListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Alunos')),
-      body: ListenableBuilder(
-        listenable: controller,
-        builder: (context, _) {
-          if (controller.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          return Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              children: [
-                TextField(
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16),
-                    prefixIcon: const Icon(Icons.search),
-                    hintText: 'Buscar...',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6.0),
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: ListenableBuilder(
+          listenable: controller,
+          builder: (context, _) {
+            if (controller.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            return Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  TextField(
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                      prefixIcon: const Icon(Icons.search),
+                      hintText: 'Buscar...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(6.0),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.only(bottom: 80),
-                    itemCount: controller.students.length,
-                    itemBuilder: (context, index) {
-                      final student = controller.students[index];
-                      return StudentCard(
-                        student: student,
-                        onEdit: () async {
-                          var response = await Navigator.pushNamed(
-                            context,
-                            '/register_page',
-                            arguments: {
-                              'student': student,
-                              'titleAction': 'Editar aluno',
-                              'buttonAction': 'Salvar',
-                            },
-                          );
-                          if (response is Map && response['success'] == true) {
-                            final updatedStudent = response['student'] as Student;
-                            controller.updateStudent(updatedStudent);
-                            if (!mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Aluno atualizado com sucesso!'),
-                                backgroundColor: Colors.green,
-                              ),
-                            );
-                          }
-                        },
-                        onDelete: () {
-                          showDialog<void>(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text('Excluir aluno'),
-                                content: const Text(
-                                  'Tem certeza que deseja excluir este aluno?'
-                                  ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Cancelar'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      final result = await controller.deleteStudent(index);
-                                      if (!mounted) return;
-                                      if (result['id'] != null) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(
-                                            content: Text('Aluno excluído com sucesso!'),
-                                            backgroundColor: Colors.green,
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: controller.students.isEmpty
+                        ? const Center(child: Text('Nenhum aluno cadastrado.'))
+                        : ListView.builder(
+                            padding: const EdgeInsets.only(bottom: 80),
+                            itemCount: controller.students.length,
+                            itemBuilder: (context, index) {
+                              final student = controller.students[index];
+                              return StudentCard(
+                                student: student,
+                                onEdit: () async {
+                                  try {
+                                    final response = await Navigator.pushNamed(
+                                      context,
+                                      '/register_page',
+                                      arguments: {
+                                        'student': student,
+                                        'titleAction': 'Editar aluno',
+                                        'buttonAction': 'Salvar',
+                                      },
+                                    );
+
+                                    if (!mounted) return;
+
+                                    if (response is Map && response['success'] == true) {
+                                      final updatedStudent = response['student'] as Student;
+                                      controller.updateStudent(updatedStudent);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Aluno atualizado com sucesso!'),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Erro ao editar aluno: $e'),
+                                        backgroundColor: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                },
+                                onDelete: () {
+                                  showDialog<void>(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text('Excluir aluno'),
+                                        content: const Text(
+                                          'Tem certeza que deseja excluir este aluno?'
                                           ),
-                                        );
-                                      }
-                                      Navigator.of(context).pop();
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text('Cancelar'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () async {
+                                              try {
+                                                showDialog(
+                                                  context: context,
+                                                  barrierDismissible: false,
+                                                  builder: (_) => const Center(child: CircularProgressIndicator()),
+                                                );
+
+                                                final result = await controller.deleteStudent(index);
+
+                                                if (!mounted) return;
+
+                                                Navigator.of(context).pop();
+
+                                                if (result['id'] != null) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text('Aluno excluído com sucesso!'),
+                                                      backgroundColor: Colors.green,
+                                                    ),
+                                                  );
+                                                } else {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text('Erro ao excluir aluno.'),
+                                                      backgroundColor: Colors.red,
+                                                    ),
+                                                  );
+                                                }
+
+                                                Navigator.of(context).pop();
+                                              } catch (e) {
+                                                if (!mounted) return;
+                                                Navigator.of(context).pop();
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text('Erro ao excluir aluno: $e'),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: const Text('Excluir'),
+                                          ),
+                                        ],
+                                      );
                                     },
-                                    child: const Text('Excluir'),
-                                  ),
-                                ],
+                                  );
+                                },
                               );
                             },
-                          );
-                        },
-                      );
-                    },
+                          ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
+                ],
+              ),
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          var response = await Navigator.pushNamed(
-            context,
-            '/register_page',
-            arguments: {
-              'student': Student.empty(),
-              'titleAction': 'Adicionar aluno',
-              'buttonAction': 'Adicionar',
-            },
-          );
-          if (response is Map && response['success'] == true) {
-            final newStudent = response['student'] as Student;
-            controller.addStudent(newStudent);
+          FocusScope.of(context).unfocus();
+          try {
+            final response = await Navigator.pushNamed(
+              context,
+              '/register_page',
+              arguments: {
+                'student': Student.empty(),
+                'titleAction': 'Adicionar aluno',
+                'buttonAction': 'Adicionar',
+              },
+            );
+
             if (!mounted) return;
-            showCustomDialog(
-              context: context,
-              title: 'Aviso',
-              description:
-                  'O aluno foi adicionado com sucesso!',
-              primaryButtonText: 'Ok',
+
+            if (response is Map && response['success'] == true) {
+              final newStudent = response['student'] as Student;
+              controller.addStudent(newStudent);
+
+              showCustomDialog(
+                context: context,
+                title: 'Aviso',
+                description: 'O aluno foi adicionado com sucesso!',
+                primaryButtonText: 'Ok',
+              );
+            }
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Erro ao adicionar aluno: $e'),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         },
