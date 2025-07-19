@@ -34,4 +34,20 @@ class StudentRepositoryImp implements StudentRepository {
       };
     }
   }
+  
+  @override
+  Future<Map<String,dynamic>> deleteStudent(String id) async {
+    int numberId = int.parse(id);
+    try {
+      final response = await client.delete(
+        HttpClientRequest(url: '/student/$numberId'),
+      );
+      return response.data;
+    } catch (e) {
+      return {
+        'success': false,
+        'message': 'Erro ao deletar estudante: $e',
+      };
+    }
+  }
 }
