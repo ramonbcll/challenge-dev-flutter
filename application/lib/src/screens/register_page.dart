@@ -1,8 +1,12 @@
+import 'package:application/src/widgets/custom_email_form_field.dart';
+import 'package:application/src/widgets/date_picker_field.dart';
 import 'package:flutter/material.dart';
 import 'package:application/src/core/injector.dart';
 import 'package:application/src/models/student.dart';
 import 'package:application/src/provider/register_controller.dart';
 import 'package:application/src/utils/utils.dart';
+import 'package:application/src/widgets/custom_text_form_field.dart';
+import 'package:application/src/screens/register/register_submit.dart';
 
 class RegisterPage extends StatefulWidget {
   final Student student;
@@ -14,17 +18,18 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _birthdateController = TextEditingController();
-  final TextEditingController _cpfController = TextEditingController();
-  final TextEditingController _raController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool _isReadOnly = false;
+
+  final _nameController = TextEditingController();
+  final _birthdateController = TextEditingController();
+  final _cpfController = TextEditingController();
+  final _raController = TextEditingController();
+  final _emailController = TextEditingController();
 
   late final RegisterController registerController;
-
+  bool _isReadOnly = false;
   bool _showError = false;
+  bool _birthdateInvalid = false;
 
   @override
   void initState() {
@@ -42,255 +47,133 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   @override
+  void dispose() {
+    _nameController.dispose();
+    _birthdateController.dispose();
+    _cpfController.dispose();
+    _raController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isEdit = widget.student.name.isNotEmpty;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          widget.student.name.isNotEmpty ? 'Editar aluno' : 'Adicionar aluno',
-        ),
+        title: Text(isEdit ? 'Editar aluno' : 'Adicionar aluno'),
       ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Padding(
+      body: ListenableBuilder(
+        listenable: registerController,
+        builder: (context, _) {
+          if (registerController.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          return SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Dados gerais",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                if (_showError)
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 12),
-                    child: Text(
-                      'Você precisa preencher os campos obrigatórios!',
-                      style: TextStyle(color: Colors.red),
-                    ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Dados gerais",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                const SizedBox(height: 8),
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 16,
+                  const SizedBox(height: 8),
+                  if (_showError && !_birthdateInvalid)
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: Text(
+                        'Você precisa preencher os campos obrigatórios!',
+                        style: TextStyle(color: Colors.red),
+                      ),
                     ),
+                  CustomTextFormField(
+                    controller: _nameController,
                     labelText: 'Nome do aluno*',
-                    floatingLabelBehavior: FloatingLabelBehavior.auto,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6.0),
-                    ),
-                    errorStyle: TextStyle(fontSize: 0),
-                    suffixIcon: _showError && _nameController.text.isEmpty
-                        ? const Icon(Icons.error, color: Colors.red)
-                        : null,
+                    showError: _showError && _nameController.text.isEmpty,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return '';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _birthdateController,
-                  keyboardType: TextInputType.datetime,
-                  inputFormatters: [dateFormatter],
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 16,
-                    ),
+                  const SizedBox(height: 16),
+                  DatePickerField(
+                    controller: _birthdateController,
                     labelText: 'Data de nascimento',
-                    floatingLabelBehavior: FloatingLabelBehavior.auto,
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.date_range),
-                      onPressed: () {
-                        showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime.now(),
-                        ).then((selectedDate) {
-                          if (selectedDate != null) {
-                            _birthdateController.text =
-                                '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}';
-                          }
-                        });
-                      },
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6.0),
-                    ),
+                    onChanged: (value) => setState(() {}),
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _cpfController,
-                  readOnly: _isReadOnly,
-                  style: TextStyle(
-                    color: _isReadOnly ? Colors.grey.shade500 : Colors.black,
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [cpfFormatter],
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 16,
-                    ),
+                  const SizedBox(height: 16),
+                  CustomTextFormField(
+                    controller: _cpfController,
                     labelText: 'CPF*',
-                    floatingLabelBehavior: FloatingLabelBehavior.auto,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6.0),
-                    ),
-                    errorStyle: TextStyle(fontSize: 0),
-                    suffixIcon: _showError && _cpfController.text.isEmpty
-                        ? const Icon(Icons.error, color: Colors.red)
-                        : null,
+                    readOnly: _isReadOnly,
+                    inputFormatters: [cpfFormatter],
+                    showError: _showError && _cpfController.text.isEmpty,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return '';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _raController,
-                  readOnly: _isReadOnly,
-                  style: TextStyle(
-                    color: _isReadOnly ? Colors.grey.shade500 : Colors.black,
-                  ),
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 16,
-                    ),
+                  const SizedBox(height: 16),
+                  CustomTextFormField(
+                    controller: _raController,
                     labelText: 'Registro acadêmico*',
-                    floatingLabelBehavior: FloatingLabelBehavior.auto,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6.0),
-                    ),
-                    errorStyle: TextStyle(fontSize: 0),
-                    suffixIcon: _showError && _raController.text.isEmpty
-                        ? const Icon(Icons.error, color: Colors.red)
-                        : null,
+                    readOnly: _isReadOnly,
+                    keyboardType: TextInputType.number,
+                    showError: _showError && _raController.text.isEmpty,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return '';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 32),
-                const Text(
-                  "Dados de acesso",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 16,
-                    ),
+                  const SizedBox(height: 32),
+                  const Text(
+                    "Dados de acesso",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  CustomEmailFormField(
+                    controller: _emailController,
                     labelText: 'E-mail*',
-                    floatingLabelBehavior: FloatingLabelBehavior.auto,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(6.0),
-                    ),
-                    errorStyle: TextStyle(fontSize: 0),
-                    suffixIcon: _showError && _emailController.text.isEmpty
-                        ? const Icon(Icons.error, color: Colors.red)
-                        : null,
+                    keyboardType: TextInputType.emailAddress,
+                    showError: _showError && _emailController.text.isEmpty,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return '';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 100),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      final isValid = _formKey.currentState!.validate();
-                      setState(() {
-                        _showError = !isValid;
-                      });
-                      if (isValid) {
-                        final student = Student(
-                          id: widget.student.id,
-                          name: _nameController.text.trim(),
-                          birthdate: _birthdateController.text.trim(),
-                          cpf: _cpfController.text.trim().replaceAll('.', '').replaceAll('-', ''),
-                          academic_record: _raController.text.trim(),
-                          email: _emailController.text.trim(),
-                        );
-
-                        if (student.id == null) {
-                          final result = await registerController.addStudent(
-                            student,
+                  const SizedBox(height: 100),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final isValid = _formKey.currentState!.validate();
+                        final birthdateText = _birthdateController.text.trim();
+                        final hasBirthdate = birthdateText.isNotEmpty;
+                        setState(() {
+                          _showError = !isValid;
+                          _birthdateInvalid =
+                              hasBirthdate && !isValidDate(birthdateText);
+                        });
+                        if (isValid && !_birthdateInvalid) {
+                          studentSubmit(
+                            context: context,
+                            formKey: _formKey,
+                            nameController: _nameController,
+                            birthdateController: _birthdateController,
+                            cpfController: _cpfController,
+                            raController: _raController,
+                            emailController: _emailController,
+                            student: widget.student,
+                            controller: registerController,
+                            onError: (hasError) {
+                              setState(() {
+                                _showError = hasError;
+                              });
+                            },
                           );
-
-                          if (!mounted) return;
-
-                          if (result['id'] != null) {
-                            final studentWithId = student.copyWith(id: result['id']);
-                            Navigator.of(context).pop({"success": true, "student": studentWithId});
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Erro ao cadastrar aluno.'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
                         }
-                        else {
-                          final result = await registerController.updateStudent(
-                            student,
-                          );
-
-                          if (!mounted) return;
-
-                          if (result['id'] != null) {
-                            Navigator.of(context).pop({"success": true, "student": student});
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Erro ao atualizar aluno.'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        }
-                      }
-                    },
-                    child: Text(
-                      widget.student.name.isNotEmpty ? 'Salvar edições' : 'Adicionar',
+                      },
+                      child: Text(isEdit ? 'Salvar edições' : 'Adicionar'),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
