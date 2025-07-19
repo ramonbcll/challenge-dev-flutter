@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 final dateFormatter = MaskTextInputFormatter(
@@ -47,4 +48,13 @@ Future<void> showCustomDialog({
       );
     },
   );
+}
+
+bool isValidDate(String input) {
+  try {
+    DateFormat('dd/MM/yyyy').parseStrict(input);
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
