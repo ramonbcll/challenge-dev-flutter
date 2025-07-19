@@ -48,6 +48,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
                 const SizedBox(height: 16),
                 Expanded(
                   child: ListView.builder(
+                    padding: const EdgeInsets.only(bottom: 50),
                     itemCount: controller.students.length,
                     itemBuilder: (context, index) {
                       final student = controller.students[index];
@@ -107,9 +108,17 @@ class _StudentsListPageState extends State<StudentsListPage> {
                                                 child: Text('Cancelar'),
                                               ),
                                               TextButton(
-                                                onPressed: () {
+                                                onPressed: () async {
+                                                  final result = await controller.deleteStudent(index);
+                                                  if (result['id'] != null) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      const SnackBar(
+                                                        content: Text('Aluno excluído com sucesso!'),
+                                                        backgroundColor: Colors.green,
+                                                      ),
+                                                    );
+                                                  }
                                                   Navigator.of(context).pop();
-                                                  // call the delete function
                                                 },
                                                 child: Text('Excluir'),
                                               ),
