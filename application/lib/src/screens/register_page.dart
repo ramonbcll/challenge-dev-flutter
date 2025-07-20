@@ -6,7 +6,7 @@ import 'package:application/src/models/student.dart';
 import 'package:application/src/provider/register_controller.dart';
 import 'package:application/src/utils/utils.dart';
 import 'package:application/src/widgets/custom_text_form_field.dart';
-import 'package:application/src/screens/register/register_submit.dart';
+import 'package:application/src/actions/register_submit.dart';
 
 class RegisterPage extends StatefulWidget {
   final Student student;
