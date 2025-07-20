@@ -86,21 +86,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
         icon: const Icon(Icons.add),
         label: const Text('Adicionar aluno'),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'Menu'),
-          BottomNavigationBarItem(icon: Icon(Icons.help), label: 'Ajuda'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notificações',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
-        ],
-        currentIndex: 0,
-        onTap: (index) {},
-      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat
     );
   }
 }
