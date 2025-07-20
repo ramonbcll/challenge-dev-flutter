@@ -1,6 +1,7 @@
 import 'package:application/src/core/dio_http_client.dart';
 import 'package:application/src/core/http_client.dart';
 import 'package:application/src/provider/register_controller.dart';
+import 'package:application/src/provider/student_log_controller.dart';
 import 'package:application/src/repositories/student_repository.dart';
 import 'package:application/src/repositories/student_repository_imp.dart';
 import 'package:auto_injector/auto_injector.dart';
@@ -52,8 +53,10 @@ class CustomInjector {
     autoInjector.add<StudentRepository>(StudentRepositoryImp.new);
 
     autoInjector.add<StudentListController>(StudentListController.new);
-    
+
     autoInjector.add<RegisterController>(RegisterController.new);
+
+    autoInjector.addSingleton<StudentLogController>(StudentLogController.new);
 
     autoInjector.commit();
   }
