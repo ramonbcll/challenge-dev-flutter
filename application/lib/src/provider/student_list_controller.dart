@@ -35,12 +35,14 @@ class StudentListController extends ChangeNotifier {
 
   void addStudent(Student student) {
     _students.add(student);
+    filterStudents('');
     notifyListeners();
   }
 
   Future<Map<String, dynamic>> deleteStudent(int index) async {
     final result = await _studentRepository.deleteStudent(_students[index].id!);
     _students.removeAt(index);
+    filterStudents('');
     notifyListeners();
     return result;
   }
