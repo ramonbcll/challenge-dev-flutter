@@ -8,12 +8,12 @@ Este projeto Flutter foi organizado adotando uma arquitetura clara, modular e or
  - Separação entre UI, estado e dados
 
 ## Bibliotecas
-- cupertino_icons
-- dio
-- pretty_dio_logger
-- auto_injector
-- mask_text_input_formatter
-- intl
+- `cupertino_icons`
+- `dio`
+- `pretty_dio_logger`
+- `auto_injector`
+- `mask_text_input_formatter`
+- `intl`
 
 ## Melhorias adicionais
  - `TextField` de Buscar realizando filtro
