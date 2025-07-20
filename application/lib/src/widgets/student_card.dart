@@ -29,7 +29,7 @@ class StudentCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 14),
                   Text(
                     student.name,
                     style: const TextStyle(
