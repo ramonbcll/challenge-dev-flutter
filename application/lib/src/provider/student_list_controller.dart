@@ -10,6 +10,9 @@ class StudentListController extends ChangeNotifier {
   List<Student> _students = [];
   List<Student> get students => _students;
 
+  List<Student> _filteredStudents = [];
+  List<Student> get filteredStudents => _filteredStudents;
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -21,6 +24,7 @@ class StudentListController extends ChangeNotifier {
       final freshStudents = await _studentRepository.students();
 
       _students = freshStudents;
+      _filteredStudents = List.from(_students);
     } catch (e) {
       debugPrint('Erro ao buscar dados da API: $e');
     }
@@ -47,5 +51,19 @@ class StudentListController extends ChangeNotifier {
       _students[index] = updatedStudent;
       notifyListeners();
     }
+  }
+    void filterStudents(String query) {
+    if (query.isEmpty) {
+      _filteredStudents = List.from(_students);
+    } else {
+      final lowerQuery = query.toLowerCase();
+      _filteredStudents = _students.where((student) {
+        return student.name.toLowerCase().contains(lowerQuery) ||
+               student.cpf.toLowerCase().contains(lowerQuery) ||
+               student.academic_record.toLowerCase().contains(lowerQuery) ||
+               student.email.toLowerCase().contains(lowerQuery);
+      }).toList();
+    }
+    notifyListeners();
   }
 }

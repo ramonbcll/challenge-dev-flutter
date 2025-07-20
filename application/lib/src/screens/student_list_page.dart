@@ -39,6 +39,7 @@ class _StudentsListPageState extends State<StudentsListPage> {
               child: Column(
                 children: [
                   TextField(
+                    onChanged: controller.filterStudents,
                     decoration: InputDecoration(
                       contentPadding: const EdgeInsets.symmetric(vertical: 16),
                       prefixIcon: const Icon(Icons.search),
@@ -50,13 +51,13 @@ class _StudentsListPageState extends State<StudentsListPage> {
                   ),
                   const SizedBox(height: 16),
                   Expanded(
-                    child: controller.students.isEmpty
+                    child: controller.filteredStudents.isEmpty
                         ? const Center(child: Text('Nenhum aluno cadastrado.'))
                         : ListView.builder(
                             padding: const EdgeInsets.only(bottom: 80),
-                            itemCount: controller.students.length,
+                            itemCount: controller.filteredStudents.length,
                             itemBuilder: (context, index) {
-                              final student = controller.students[index];
+                              final student = controller.filteredStudents[index];
                               return StudentCard(
                                 student: student,
                                 onEdit: () => handleEditStudent(
