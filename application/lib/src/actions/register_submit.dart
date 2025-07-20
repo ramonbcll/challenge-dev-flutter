@@ -19,32 +19,42 @@ Future<void> studentSubmit({
 
   if (!isValid) return;
 
-  final newStudent = Student(
-    id: student.id,
-    name: nameController.text.trim(),
-    birthdate: birthdateController.text.trim(),
-    cpf: cpfController.text.trim().replaceAll('.', '').replaceAll('-', ''),
-    academic_record: raController.text.trim(),
-    email: emailController.text.trim(),
-  );
+  try {
+    final newStudent = Student(
+      id: student.id,
+      name: nameController.text.trim(),
+      birthdate: birthdateController.text.trim(),
+      cpf: cpfController.text.trim().replaceAll('.', '').replaceAll('-', ''),
+      academic_record: raController.text.trim(),
+      email: emailController.text.trim(),
+    );
 
-  final result = newStudent.id == null
-      ? await controller.addStudent(newStudent)
-      : await controller.updateStudent(newStudent);
+    final result = newStudent.id == null
+        ? await controller.addStudent(newStudent)
+        : await controller.updateStudent(newStudent);
 
-  if (!context.mounted) return;
+    if (!context.mounted) return;
 
-  if (result['id'] != null) {
-    final updatedStudent = newStudent.copyWith(id: result['id']);
-    Navigator.of(context).pop({"success": true, "student": updatedStudent});
-  } else {
+    if (result['id'] != null) {
+      final updatedStudent = newStudent.copyWith(id: result['id']);
+      Navigator.of(context).pop({"success": true, "student": updatedStudent});
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            newStudent.id == null
+                ? 'Erro ao cadastrar aluno.'
+                : 'Erro ao atualizar aluno.',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  } catch (e) {
+    if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          newStudent.id == null
-              ? 'Erro ao cadastrar aluno.'
-              : 'Erro ao atualizar aluno.',
-        ),
+        content: Text('Ocorreu um erro inesperado: $e'),
         backgroundColor: Colors.red,
       ),
     );
