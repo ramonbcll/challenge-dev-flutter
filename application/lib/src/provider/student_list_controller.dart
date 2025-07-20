@@ -51,6 +51,7 @@ class StudentListController extends ChangeNotifier {
     final index = _students.indexWhere((s) => s.id == updatedStudent.id);
     if (index != -1) {
       _students[index] = updatedStudent;
+      filterStudents('');
       notifyListeners();
     }
   }
