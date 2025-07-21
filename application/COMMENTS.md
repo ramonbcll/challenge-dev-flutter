@@ -36,6 +36,9 @@ Este projeto Flutter foi organizado adotando uma arquitetura clara, modular e or
  - `BottomNavigationBarItem` transicionando entre as telas de Menu, Ajuda, Notificações e Perfil
  - `BottomNavigationBarItem` de notificações ativo com histórico de inclusão, alteração e exclusão de alunos
 
+## Requisitos obrigatórios
+Todos os requisitos obrigatórios foram entregues
+
 ## Environment
  - Flutter: 3.32.7
  - Dart: 3.8.1
