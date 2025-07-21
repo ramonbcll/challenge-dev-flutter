@@ -39,7 +39,7 @@ class StudentCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text('RA: ${student.academic_record}'),
-                  Text('CPF: ${student.cpf}'),
+                  Text('CPF: ${student.cpf.replaceAll(RegExp(r'[.\-]'), '')}'),
                 ],
               ),
             ),
